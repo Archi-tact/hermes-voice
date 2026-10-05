@@ -14,9 +14,10 @@ interface Speaker {
 
 interface SpeechInput {
     /**
-     * Listens for one utterance, playing a short [cue] tone first when true. Exactly one callback
-     * runs, on the main thread, unless [stop] is called first.
+     * Listens for one spoken request, playing a short [cue] tone first when true. When [patient],
+     * short pauses do not end it (the user may think mid-sentence); short answers pass false.
+     * Exactly one callback runs, on the main thread, unless [stop] is called first.
      */
-    fun start(cue: Boolean, onResult: (String) -> Unit, onError: (ErrorKind) -> Unit)
+    fun start(cue: Boolean, patient: Boolean, onResult: (String) -> Unit, onError: (ErrorKind) -> Unit)
     fun stop()
 }

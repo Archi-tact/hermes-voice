@@ -83,7 +83,7 @@ class VoiceSessionController(
         when (next) {
             VoiceState.Idle -> speaker.stop()
             VoiceState.Prompting -> speaker.speak(VoiceMessages.PROMPT) { dispatch(VoiceEvent.PromptFinished) }
-            is VoiceState.Listening -> listen(cue = next.cue) {
+            is VoiceState.Listening -> listen(cue = next.cue, patient = true) {
                 onResult = { dispatch(VoiceEvent.Recognized(it, newId())) }
                 onError = { dispatch(VoiceEvent.RecognitionFailed(it)) }
             }
@@ -118,7 +118,7 @@ class VoiceSessionController(
                     queuedSpeech = 0
                     speaker.speak(VoiceMessages.approvalQuestion(next.description)) { dispatch(VoiceEvent.ApprovalPromptFinished) }
                 }
-                next.listening -> listen(cue = true) {
+                next.listening -> listen(cue = true, patient = false) {
                     onResult = { dispatch(VoiceEvent.ApprovalDecided(VoiceCommands.isApproval(it))) }
                     // Silence or a recognizer failure never approves; the buttons stay available.
                     onError = { dispatch(VoiceEvent.Pause) }
@@ -137,12 +137,12 @@ class VoiceSessionController(
         var onError: (ErrorKind) -> Unit = {}
     }
 
-    private fun listen(cue: Boolean, configure: ListenCallbacks.() -> Unit) {
+    private fun listen(cue: Boolean, patient: Boolean, configure: ListenCallbacks.() -> Unit) {
         speaker.stop()
         queuedSpeech = 0
         if (!foreground) { dispatch(VoiceEvent.Pause); return }
         val callbacks = ListenCallbacks().apply(configure)
-        input.start(cue, callbacks.onResult, callbacks.onError)
+        input.start(cue, patient, callbacks.onResult, callbacks.onError)
     }
 
     private fun say(text: String) {

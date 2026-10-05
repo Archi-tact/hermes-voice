@@ -37,8 +37,9 @@ class VoiceSessionControllerTest {
         var onError: ((ErrorKind) -> Unit)? = null
         var listening = false
         var cue = false
-        override fun start(cue: Boolean, onResult: (String) -> Unit, onError: (ErrorKind) -> Unit) {
-            listening = true; this.cue = cue; this.onResult = onResult; this.onError = onError
+        var patient = false
+        override fun start(cue: Boolean, patient: Boolean, onResult: (String) -> Unit, onError: (ErrorKind) -> Unit) {
+            listening = true; this.cue = cue; this.patient = patient; this.onResult = onResult; this.onError = onError
         }
         override fun stop() { listening = false }
         fun say(text: String) = onResult!!.invoke(text)
@@ -97,6 +98,7 @@ class VoiceSessionControllerTest {
         speaker.finish()
         assertTrue(input.listening)
         assertFalse(input.cue)
+        assertTrue("questions wait out short pauses", input.patient)
 
         input.say("오늘 일정 알려줘")
         assertEquals(VoiceMessages.SENT, speaker.spoken.last())
@@ -190,6 +192,7 @@ class VoiceSessionControllerTest {
         assertFalse(input.listening)
         speaker.finish()
         assertTrue(input.listening)
+        assertFalse("a yes/no answer finishes on the first pause", input.patient)
 
         input.say("응 진행해")
         assertEquals(listOf(Triple(relay.calls.single().requestId, "run-1", true)), relay.approvals)

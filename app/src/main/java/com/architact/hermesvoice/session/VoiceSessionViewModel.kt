@@ -34,8 +34,22 @@ class VoiceSessionViewModel(application: Application) : AndroidViewModel(applica
     /** Microphone level 0..1 while listening; drives the orb. */
     val micLevel: StateFlow<Float> = mutableMicLevel.asStateFlow()
 
+    private val mutableLiveTranscript = MutableStateFlow("")
+
+    /** What the user is saying right now (live captions while listening). */
+    val liveTranscript: StateFlow<String> = mutableLiveTranscript.asStateFlow()
+
+    /** How long a pause may last before the question is sent. */
+    val listeningPatience get() = input.patience
+
+    fun cycleListeningPatience() = input.patience.next().also { input.patience = it }
+
+    /** "다 말했어요": send what was said without waiting for the pause. */
+    fun finishSpeaking() = input.finishNow()
+
     init {
         input.onLevel = { mutableMicLevel.value = it }
+        input.onPartial = { mutableLiveTranscript.value = it }
         // A foreground notification keeps long tasks (and the reply being read) alive with the screen off.
         viewModelScope.launch {
             controller.state

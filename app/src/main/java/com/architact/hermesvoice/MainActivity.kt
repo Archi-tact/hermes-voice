@@ -69,8 +69,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    controller.state.combine(controller.turns) { state, turns -> state to turns }
-                        .collect { (state, turns) -> render(state, turns) }
+                    combine(controller.state, controller.turns, viewModel.liveTranscript) { state, turns, live ->
+                        Triple(state, turns, live)
+                    }.collect { (state, turns, live) -> render(state, turns, live) }
                 }
                 launch { viewModel.micLevel.collect { orb.level = it } }
             }
@@ -258,7 +259,7 @@ class MainActivity : ComponentActivity() {
 
     // ---------------------------------------------------------------- render
 
-    private fun render(state: VoiceState, turns: List<Turn>) {
+    private fun render(state: VoiceState, turns: List<Turn>, live: String) {
         orb.mode = when (state) {
             VoiceState.Idle, is VoiceState.Ended -> OrbView.Mode.Idle
             VoiceState.Prompting, is VoiceState.Speaking -> OrbView.Mode.Speaking
@@ -278,7 +279,7 @@ class MainActivity : ComponentActivity() {
             ),
         )
         detail.text = when (state) {
-            is VoiceState.Listening -> if (state.followUp) "말이 없으면 잠시 쉬어 갈게요" else "말씀이 끝나면 잠시 기다려 주세요"
+            is VoiceState.Listening -> "말을 멈추고 ${"%.1f".format(viewModel.listeningPatience.millis / 1000f)}초 지나면 보내요"
             is VoiceState.Waiting -> "다른 앱을 써도 작업은 계속돼요"
             else -> ""
         }
@@ -293,14 +294,14 @@ class MainActivity : ComponentActivity() {
             approvalCard.visibility = View.GONE
         }
 
-        renderHistory(turns, state)
-        renderActions(state)
+        renderHistory(turns, state, live)
+        renderActions(state, live)
         val quiet = state is VoiceState.Idle || state is VoiceState.Ended || state is VoiceState.Error
         settings.isEnabled = quiet
         settings.alpha = if (quiet) 1f else 0.38f
     }
 
-    private fun renderActions(state: VoiceState) {
+    private fun renderActions(state: VoiceState, live: String) {
         val approving = state is VoiceState.Approving
         actionRow.visibility = if (approving) View.GONE else View.VISIBLE
         approvalRow.visibility = if (approving) View.VISIBLE else View.GONE
@@ -316,7 +317,14 @@ class MainActivity : ComponentActivity() {
 
         when (state) {
             VoiceState.Idle -> mainAction.bind(R.drawable.ic_mic, "말하기") { withMicrophone { controller.start() } }
-            VoiceState.Prompting, is VoiceState.Listening -> mainAction.bind(R.drawable.ic_close, "대화 끝내기") { controller.cancel() }
+            VoiceState.Prompting -> mainAction.bind(R.drawable.ic_close, "대화 끝내기") { controller.cancel() }
+            is VoiceState.Listening -> if (live.isBlank()) {
+                mainAction.bind(R.drawable.ic_close, "대화 끝내기") { controller.cancel() }
+            } else {
+                // Send right away instead of waiting out the pause.
+                mainAction.bind(R.drawable.ic_check, "다 말했어요") { viewModel.finishSpeaking() }
+                pill(leftSlot, "취소", R.drawable.ic_close) { controller.cancel() }
+            }
             is VoiceState.Waiting -> mainAction.bind(R.drawable.ic_stop, "작업 멈추기") { controller.cancel() }
             is VoiceState.Speaking -> {
                 mainAction.bind(R.drawable.ic_mic, "끊고 말하기") { withMicrophone { controller.interrupt() } }
@@ -331,10 +339,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun renderHistory(turns: List<Turn>, state: VoiceState) {
+    private fun renderHistory(turns: List<Turn>, state: VoiceState, live: String) {
         val shown = turns.toMutableList()
         // Show the question being worked on and the reply as it streams in, before they become turns.
         when (state) {
+            is VoiceState.Listening -> if (live.isNotBlank()) shown += Turn(true, live)
             is VoiceState.Waiting -> if (shown.lastOrNull()?.fromUser != true) shown += Turn(true, state.transcript)
             is VoiceState.Approving -> if (shown.lastOrNull()?.fromUser != true) shown += Turn(true, state.transcript)
             is VoiceState.Speaking -> if (!state.complete) shown += Turn(false, state.reply)
@@ -352,7 +361,11 @@ class MainActivity : ComponentActivity() {
             }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dpi(24) })
             return
         }
-        shown.forEach { history.addView(bubble(it)) }
+        shown.forEachIndexed { index, turn ->
+            // Live captions are shown dimmed until the question is sent.
+            val captioning = state is VoiceState.Listening && live.isNotBlank() && index == shown.lastIndex
+            history.addView(bubble(turn).apply { if (captioning) alpha = 0.6f })
+        }
         historyScroll.post { historyScroll.fullScroll(View.FOCUS_DOWN) }
     }
 
@@ -394,10 +407,12 @@ class MainActivity : ComponentActivity() {
         PopupMenu(this, anchor).apply {
             menu.add(0, 1, 0, "목소리 바꾸기")
             menu.add(0, 2, 1, if (viewModel.edgeVoiceEnabled) "휴대폰 음성으로 전환" else "PC 고품질 음성 사용")
+            menu.add(0, 3, 2, "말 끝 기다리기: ${viewModel.listeningPatience.label}")
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     1 -> viewModel.changeVoice(::toast)
                     2 -> viewModel.toggleEdgeVoice(::toast)
+                    3 -> viewModel.cycleListeningPatience().let { toast("말이 멈춘 뒤 ${"%.1f".format(it.millis / 1000f)}초 기다려요 (${it.label})") }
                 }
                 true
             }
