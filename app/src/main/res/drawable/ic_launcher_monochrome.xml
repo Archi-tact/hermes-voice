@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon layer (Android 13+): the launcher tints this single-color silhouette. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M41,49C35,45 31,39 30.5,32C35.5,36 40.5,40 45,44Z
+            M39,55C32.5,53 28,48.5 26,43C31.5,45.5 36.5,48 42,51Z
+            M40,61C34.5,61 30,58.5 27.5,54.5C32.5,55.5 37,56.5 42,58Z" />
+    <!-- orb ring -->
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M37,55a19,19 0,1 0,38 0a19,19 0,1 0,-38 0z
+            M39.6,55a16.4,16.4 0,1 0,32.8 0a16.4,16.4 0,1 0,-32.8 0z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M47,52a1.6,1.6 0,0 1,1.6 1.6v2.8a1.6,1.6 0,0 1,-3.2 0v-2.8a1.6,1.6 0,0 1,1.6 -1.6z
+            M52.2,48a1.6,1.6 0,0 1,1.6 1.6v10.8a1.6,1.6 0,0 1,-3.2 0v-10.8a1.6,1.6 0,0 1,1.6 -1.6z
+            M57.4,44a1.6,1.6 0,0 1,1.6 1.6v18.8a1.6,1.6 0,0 1,-3.2 0v-18.8a1.6,1.6 0,0 1,1.6 -1.6z
+            M62.6,48.5a1.6,1.6 0,0 1,1.6 1.6v9.8a1.6,1.6 0,0 1,-3.2 0v-9.8a1.6,1.6 0,0 1,1.6 -1.6z
+            M67.8,52.5a1.6,1.6 0,0 1,1.6 1.6v1.8a1.6,1.6 0,0 1,-3.2 0v-1.8a1.6,1.6 0,0 1,1.6 -1.6z" />
+</vector>

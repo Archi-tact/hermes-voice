@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark theme "night sky". Desaturated tones, AA contrast on every text pair. -->
+<resources>
+    <color name="hv_background">#10131A</color>
+    <color name="hv_surface">#191D27</color>
+    <color name="hv_surface_variant">#232837</color>
+    <color name="hv_outline">#2E3445</color>
+    <color name="hv_on_background">#E8EAF0</color>
+    <color name="hv_on_muted">#A4ABBB</color>
+    <color name="hv_primary">#A9C2E8</color>
+    <color name="hv_on_primary">#10131A</color>
+    <color name="hv_user_bubble">#2A3550</color>
+    <color name="hv_on_user_bubble">#E8EAF0</color>
+    <color name="hv_attention">#F0C987</color>
+    <color name="hv_attention_container">#3A2F1C</color>
+    <color name="hv_danger">#EC9A86</color>
+    <color name="hv_ripple">#33A9C2E8</color>
+</resources>

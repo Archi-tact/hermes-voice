@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light theme "warm ivory". Every text/background pair meets WCAG AA (4.5:1). -->
+<resources>
+    <color name="hv_background">#F7F4EF</color>
+    <color name="hv_surface">#FFFFFF</color>
+    <color name="hv_surface_variant">#EFEAE2</color>
+    <color name="hv_outline">#E2DCD1</color>
+    <color name="hv_on_background">#1F2430</color>
+    <color name="hv_on_muted">#585E6C</color>
+    <color name="hv_primary">#3D5A80</color>
+    <color name="hv_on_primary">#FFFFFF</color>
+    <color name="hv_user_bubble">#DCE6F2</color>
+    <color name="hv_on_user_bubble">#1F2430</color>
+    <color name="hv_attention">#8A5A12</color>
+    <color name="hv_attention_container">#F6E7C8</color>
+    <color name="hv_danger">#A2402C</color>
+    <color name="hv_ripple">#223D5A80</color>
+</resources>
