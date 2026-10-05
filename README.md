@@ -107,3 +107,10 @@ python3 -m unittest discover relay
 | `POST /v1/voice-requests/<id>/cancel` | 해당 작업 중단 |
 | `POST /v1/voice-approvals` `{requestId, approvalId, approve}` | 그 작업이 요청한 승인에만 응답 |
 | `POST /v1/tts` `{text, voice}` | `audio/mpeg` (ko-KR SunHi / InJoon / Hyunsu) |
+
+## 라이선스
+
+[MIT](LICENSE) © 2026 Archi-tact
+
+- UI 아이콘(`res/drawable/ic_mic.xml` 등)은 [Material Icons](https://github.com/google/material-design-icons)의 경로이며 Apache License 2.0을 따릅니다.
+- Hermes Agent, Edge TTS(`edge-tts`), Tailscale은 각자의 라이선스와 이용 약관을 따릅니다.
