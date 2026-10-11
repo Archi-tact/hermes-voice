@@ -4,14 +4,18 @@
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# The Hermes venv has edge_tts for the PC voices; fall back to the system Python without them.
-PY="${HERMES_PY:-$HOME/.hermes/hermes-agent/.venv/bin/python}"
+# Hermes Python has edge_tts for the PC voices. Its location changed across Hermes releases,
+# so try HERMES_PY, then the known install paths, then the system Python (no PC voices).
+PY="${HERMES_PY:-}"
+for candidate in "$PY" "$HOME/.hermes/bin/hermes-python" "$HOME/.hermes/hermes-agent/.venv/bin/python" "$HOME/.hermes/hermes-agent/venv/bin/python"; do
+    if [[ -n "$candidate" && -x "$candidate" ]]; then PY="$candidate"; break; fi
+done
 [[ -x "$PY" ]] || PY=python3
 # Under WSL this resolves to the Windows SDK adb.exe (the phone is attached to the Windows adb server).
 # shellcheck source=find_adb.sh
 . "$HERE/find_adb.sh"
 ADB="$(find_adb)"
-PORT="${RELAY_PORT:-8765}"
+PORT="${RELAY_PORT:-8787}"
 LOG="$HOME/.hermes/logs/hermes-voice-relay.log"
 mkdir -p "$(dirname "$LOG")"
 

@@ -20,7 +20,7 @@ Environment:
   HERMES_API_URL      default http://127.0.0.1:8642 (base URL)
   RELAY_TOKEN_FILE    default ~/.config/hermes-voice/relay_token (created by pair_device.sh)
   RELAY_HOST          default 127.0.0.1; must be loopback or Tailscale 100.64.0.0/10
-  RELAY_PORT          default 8765
+  RELAY_PORT          default 8787 (8765 is commonly taken by other local agents)
 """
 import asyncio
 import hmac
@@ -519,7 +519,7 @@ def read_token(path):
 
 def main():
     host = os.environ.get("RELAY_HOST", "127.0.0.1")
-    port = int(os.environ.get("RELAY_PORT", "8765"))
+    port = int(os.environ.get("RELAY_PORT", "8787"))
     check_bind_host(host)
     api_key = os.environ.get("API_SERVER_KEY")
     if not api_key:

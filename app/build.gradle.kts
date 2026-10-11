@@ -5,7 +5,7 @@ plugins {
 
 // Relay base URLs, tried in order: USB (adb reverse) first, then the tailnet (tailscale serve).
 // Set hermesRelayUrls in gradle.properties or with -PhermesRelayUrls=url1,url2.
-val relayUrls = (findProperty("hermesRelayUrls") as String?) ?: "http://127.0.0.1:8765"
+val relayUrls = (findProperty("hermesRelayUrls") as String?) ?: "http://127.0.0.1:8787"
 
 android {
     namespace = "com.architact.hermesvoice"

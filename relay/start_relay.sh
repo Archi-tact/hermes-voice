@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
-# Starts the relay watchdog in a detached tmux session; safe to run repeatedly.
-# Windows runs this at logon through relay/windows/start-hermes-voice-relay.vbs.
+# Starts the relay watchdog in a detached tmux session; safe to run repeatedly (Windows runs it at
+# logon and every few minutes through relay/windows/, so the relay comes back after WSL restarts).
 #   relay/start_relay.sh            start (no-op if already running)
 #   relay/start_relay.sh --restart  restart, e.g. after updating the relay code or the token
+# If ~/.config/hermes-voice/pre-start.sh exists it runs first (e.g. to bring up Tailscale).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SESSION="hermes-voice-relay"
+PRE_START="$HOME/.config/hermes-voice/pre-start.sh"
+
+if [[ -x "$PRE_START" ]]; then
+    "$PRE_START" || echo "pre-start hook failed (continuing)" >&2
+fi
 
 if [[ "${1:-}" == "--restart" ]] && tmux has-session -t "$SESSION" 2>/dev/null; then
     tmux kill-session -t "$SESSION"

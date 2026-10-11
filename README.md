@@ -8,8 +8,8 @@
 > answer — including follow-up questions, long-running PC tasks, and spoken approvals for risky actions.
 
 ```
-휴대폰 앱 ─┬─ USB: adb reverse → 127.0.0.1:8765 ──────────────┐
-           └─ 무선: Tailscale → <your-pc>.<tailnet>.ts.net:8765 ─┤ (tailscale serve, tailnet 전용)
+휴대폰 앱 ─┬─ USB: adb reverse → 127.0.0.1:8787 ──────────────┐
+           └─ 무선: Tailscale → <your-pc>.<tailnet>.ts.net:8787 ─┤ (tailscale serve, tailnet 전용)
                                                   relay/hermes_voice_relay.py   ← Bearer 페어링 토큰
                                                   └─ Hermes API Server :8642   ← SSE, 세션, 승인
 ```
@@ -47,17 +47,20 @@ relay/start_relay.sh
 - 중계 서버는 `~/.hermes/.env`에서 `API_SERVER_KEY`를 읽습니다. 다른 위치라면 환경 변수로 넘기세요.
 - WSL에서는 `relay/find_adb.sh`가 Windows SDK의 `adb.exe`를 자동으로 찾습니다(휴대폰은 Windows adb 서버에 붙기 때문). `ADB=`로 바꿀 수 있습니다.
 - Windows 로그인 때 자동 시작: `relay/windows/start-hermes-voice-relay.vbs`를 `shell:startup`에 복사하세요(저장소 경로가 다르면 파일 안 경로를 고치세요).
+- WSL이나 PC가 재시작돼도 되살아나게 하려면 PowerShell에서 `relay/windows/install-keepalive.ps1`을 한 번 실행하세요(5분마다 확인, 이미 켜져 있으면 아무것도 하지 않음).
+- `~/.config/hermes-voice/pre-start.sh`가 있으면 중계 서버보다 먼저 실행됩니다(예: Tailscale 켜기, `tailscale serve` 설정).
+- 기본 포트는 **8787**입니다(8765는 다른 로컬 에이전트가 흔히 씀). 바꾸려면 `RELAY_PORT`와 `hermesRelayUrls`를 함께 바꾸세요.
 
 ### 무선(Tailscale)
 
 ```bash
-tailscale serve --bg --http 8765 http://127.0.0.1:8765   # tailnet 안에서만 열립니다 (Funnel 아님)
+tailscale serve --bg --http 8787 http://127.0.0.1:8787   # tailnet 안에서만 열립니다 (Funnel 아님)
 ```
 
 앱이 시도할 주소는 `~/.gradle/gradle.properties`에 넣습니다(저장소의 `gradle.properties`보다 우선하고 git에 올라가지 않습니다).
 
 ```properties
-hermesRelayUrls=http://127.0.0.1:8765,http://<your-pc>.<your-tailnet>.ts.net:8765
+hermesRelayUrls=http://127.0.0.1:8787,http://<your-pc>.<your-tailnet>.ts.net:8787
 ```
 
 평문 HTTP는 debug 빌드에서만 허용됩니다. Tailscale 구간은 WireGuard로 암호화됩니다.
